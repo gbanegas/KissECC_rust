@@ -19,4 +19,12 @@ mod tests {
         let p3 = Point { x: 0, y: 0 , z: 0};
         assert_eq!(ecc.is_valid(&p3), true);
     }
+
+    fn test_add(){
+    }
+
+    fn test_mul(){
+    }
+
+
 }
