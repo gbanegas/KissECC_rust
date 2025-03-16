@@ -1,29 +1,44 @@
-
-#[allow(dead_code)]
-
-
 #[cfg(test)]
 mod tests {
     use KissECC::ecc::{EllipticCurve, Point};
     use KissECC::weierstrass_ecc::WeierstrassECC;
 
     #[test]
-    fn test_is_at(){
-
-        let ecc = WeierstrassECC { a: 2, b: 3, q: 17 };
-        let p = Point { x: 5, y: 1 , z: 0};
-        assert_eq!(ecc.is_valid(&p), false);
-        let p2 = Point { x: 5, y: 6 , z: 0};
-        assert_eq!(ecc.is_valid(&p2), true);
-        let p3 = Point { x: 0, y: 0 , z: 0};
-        assert_eq!(ecc.is_valid(&p3), true);
+    fn test_is_valid() {
+        let ecc = WeierstrassECC::new(  2, 3, 17 );
+        // A point that is not on the curve.
+        let invalid = Point { x: 5, y: 1, z: 0 };
+        assert_eq!(ecc.is_valid(&invalid), false);
+        // A known valid point on y² = x³ + 2x + 3 mod 17.
+        let valid = Point { x: 5, y: 6, z: 0 };
+        assert_eq!(ecc.is_valid(&valid), true);
+        // The "zero" point (identity) is defined as (0, 0, 0) in this implementation.
+        let identity = Point { x: 0, y: 0, z: 0 };
+        assert_eq!(ecc.is_valid(&identity), true);
     }
 
-    fn test_add(){
+    #[test]
+    fn test_add() {
+        let ecc = WeierstrassECC::new(  2, 3, 17 );
+        let identity = Point { x: 0, y: 0, z: 0 };
+        let p = Point { x: 5, y: 6, z: 0 };
+        // Adding the identity should return the same point.
+        let sum = ecc.add(&p, &identity);
+        assert_eq!(sum, p);
     }
 
-    fn test_mul(){
+    #[test]
+    fn test_mul() {
+        let ecc = WeierstrassECC::new(  2, 3, 17 );
+        let identity = Point { x: 0, y: 0, z: 0 };
+        let p = Point { x: 5, y: 6, z: 0 };
+
+        // Multiplying by 0 should yield the identity.
+        let r0 = ecc.mul(0, &p);
+        assert_eq!(r0, identity);
+
+        // Multiplying by 1 should yield the same point.
+        let r1 = ecc.mul(1, &p);
+        assert_eq!(r1, p);
     }
-
-
 }

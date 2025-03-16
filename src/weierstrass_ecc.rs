@@ -1,6 +1,6 @@
 
 use num_traits::{Zero, One, FromPrimitive, ToPrimitive};
-use std::ops::{Mul, Rem, Add, Sub, BitAnd, Shr};
+use std::ops::{Mul, Rem, Add, Sub, BitAnd, Shr, Div};
 use std::cmp::PartialEq;
 use num_integer::Integer;
 use crate::ecc::{EllipticCurve, Point};
@@ -14,6 +14,35 @@ pub struct WeierstrassECC<T> {
     // You can include additional parameters as needed.
 }
 
+
+impl<T> WeierstrassECC<T>
+where
+    T: One
+    + From<u8>
+    + Clone
+    + PartialEq
+    + PartialOrd
+    + FromPrimitive
+    + ToPrimitive
+    + Integer
+    + Add<Output = T>
+    + Sub<Output = T>
+    + Mul<Output = T>
+    + Rem<Output = T>
+    + Div<Output = T>
+    + Copy,
+{
+    /// Creates a new Weierstrass Curve
+    ///
+
+    pub fn new(a: T, b: T, q: T) -> Self {
+        assert!(q > T::from(2u8));
+        assert!(a != T::zero());
+        assert!(b != T::zero());
+        assert!(a != b);
+        WeierstrassECC { a, b, q }
+    }
+}
 
 impl<T> EllipticCurve<T> for WeierstrassECC<T>
 where
@@ -128,7 +157,7 @@ where
         let mut m2 = p.clone();
 
         // Loop until n is reduced to zero.
-        while n > T::zero() {
+        while n_c > T::zero() {
             // If the least significant bit of n is 1, add m2 into the result.
             if (n_c & T::one()) == T::one() {
                 r = self.add(&r, &m2);
