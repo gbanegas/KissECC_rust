@@ -1,6 +1,6 @@
 pub mod ecc;
 pub mod weierstrass_ecc;
 pub mod utils;
-mod edwards_curve;
-mod twisted_curve;
-mod montgomery_curve;
+pub mod edwards_curve;
+pub mod twisted_curve;
+pub mod montgomery_curve;
