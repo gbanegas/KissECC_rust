@@ -1,5 +1,4 @@
-// This is a really bad adding function, its purpose is to fail in this
-// example.
+
 #[allow(dead_code)]
 
 
