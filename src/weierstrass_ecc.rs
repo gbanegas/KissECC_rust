@@ -1,13 +1,13 @@
 
 use num_traits::{Zero, One, FromPrimitive, ToPrimitive};
-use std::ops::{Mul, Rem, Add, Sub};
+use std::ops::{Mul, Rem, Add, Sub, BitAnd, Shr};
 use std::cmp::PartialEq;
 use num_integer::Integer;
 use crate::ecc::{EllipticCurve, Point};
 use crate::utils::Utils;
 
-
 pub struct WeierstrassECC<T> {
+    //elliptic curve as: (y**2 = x**3 + a * x + b) mod q
     pub a: T,
     pub b: T,
     pub q: T,
@@ -18,6 +18,7 @@ pub struct WeierstrassECC<T> {
 impl<T> EllipticCurve<T> for WeierstrassECC<T>
 where
     T: Zero
+    + From<u8>
     + One
     + Clone
     + PartialEq
@@ -28,7 +29,10 @@ where
     + Add<Output = T>
     + Sub<Output = T>
     + Mul<Output = T>
-    + Rem<Output = T>,
+    + Copy
+    + Rem<Output = T> + std::fmt::Display
+    + BitAnd<Output = T>  // Required for n & 1
+    + Shr<u32, Output = T>, // Required for n >> 1,
 {
 
     fn is_valid(&self, p: &Point<T>) -> bool {
@@ -69,8 +73,39 @@ where
     }
 
     fn add(&self, _p: &Point<T>, _q: &Point<T>) -> Point<T> {
-        // Implementation of point addition goes here.
-        unimplemented!()
+        assert_eq!(self.is_valid(_p), true);
+        assert_eq!(self.is_valid(_q), true);
+
+
+        if _p.x == T::zero() && _p.y == T::zero() && _p.z == T::zero() {
+            return _q.clone();
+        }
+        if _q.x == T::zero() && _q.y == T::zero() && _q.z == T::zero() {
+            return _p.clone();
+        }
+        let mut res = Point { x: T::zero(), y: T::zero() , z: T::zero()};
+        if _p.x == _q.x && (_p.y != _q.y || _p.y == T::zero()){
+            return  res.clone();
+        }
+        let l;
+        if _p.x == _q.x{
+            // p1 + p1: use tangent line of p1 as (p1,p1) line
+
+            let  two = T::from(2u8);
+            let inv_val = Utils::mod_inv(two * _p.y.clone(), self.q.clone())
+                .expect("Inverse should exist");
+            let three = T::from(3u8);
+            l = (((three.clone() * _p.x.clone() * _q.x.clone()) + self.a.clone()) * inv_val) % self.q.clone();
+        }
+        else {
+            let tmp = (_q.x.clone() - _p.x.clone())%self.q.clone();
+            let inv = Utils::mod_inv(tmp, self.q.clone()).expect("Inverse should exist");
+            l = (_q.y - _p.y.clone())*inv.clone()%self.q.clone();
+        }
+        res.x = ((l*l)-_p.x - _q.x.clone()) % self.q.clone();
+        res.y = (l*(_p.x-res.x) - _q.y.clone()) % self.q.clone();
+
+        res
     }
 
     fn double(&self, _p: &Point<T>) -> Point<T> {
@@ -78,13 +113,64 @@ where
         unimplemented!()
     }
 
-    fn mul(&self, _k: T, _p: &Point<T>) -> Point<T> {
-        // Implementation of scalar multiplication (e.g., via double-and-add) goes here.
-        unimplemented!()
+    fn mul(&self,  n: T, p: &Point<T>) -> Point<T> {
+        // Define the zero (identity) point.
+        let zero_point = Point {
+            x: T::zero(),
+            y: T::zero(),
+            z: T::zero(),
+        };
+
+        let mut n_c = n.clone();
+
+        // Start with r as the identity and m2 as p.
+        let mut r = zero_point.clone();
+        let mut m2 = p.clone();
+
+        // Loop until n is reduced to zero.
+        while n > T::zero() {
+            // If the least significant bit of n is 1, add m2 into the result.
+            if (n_c & T::one()) == T::one() {
+                r = self.add(&r, &m2);
+            }
+            // Right shift n by 1 (divide by 2).
+            n_c = n_c >> 1;
+            // Double the point m2.
+            m2 = self.add(&m2, &m2);
+        }
+        r
     }
 
-    fn order(&self) -> T {
-        // Return the group order. For demonstration, we just return zero.
-        T::zero()
+
+
+    fn order(&self, g: &Point<T>) -> Result<T, &'static str> {
+        // Define the identity (zero) point.
+        let zero = Point {
+            x: T::zero(),
+            y: T::zero(),
+            z: T::zero(),
+        };
+
+        // Ensure g is valid and not the zero point.
+        if !self.is_valid(g) || *g == zero {
+            return Err("Invalid point");
+        }
+
+        let mut order = T::one();
+        let mut current = g.clone();
+        // Repeatedly add g until we get the zero point.
+        while current != zero {
+            order = order + T::one();
+            current = self.add(&current, g);
+            // If we exceed the modulus, something is wrong.
+            if order > self.q {
+                return Err("Point order not found within group bounds");
+            }
+        }
+        Ok(order)
+    }
+
+    fn display(&self) -> String {
+        format!("(y**2 = x**3 + {} * x + {}) mod {}", self.a, self.b, self.q)
     }
 }

@@ -46,7 +46,7 @@ impl Utils {
         + ToPrimitive
         + Integer,
     {
-        // If a is zero, the square root is zero.
+        // If "a" is zero, the square root is zero.
         if a == T::zero() {
             return Some(T::zero());
         }
@@ -79,7 +79,7 @@ impl Utils {
         // x = a^{(q+1)/2} mod p,
         // t = a^q mod p.
         let mut c = Utils::modpow(z, q, p.clone());
-        let mut x = Utils::modpow(a.clone(), ((q + 1) / 2) as u32, p.clone());
+        let mut x = Utils::modpow(a.clone(), (q + 1) / 2, p.clone());
         let mut t = Utils::modpow(a, q, p.clone());
         let mut m = s;
 
@@ -101,6 +101,49 @@ impl Utils {
             m = i;
         }
         Some(x)
+    }
+
+    /// Computes the modular inverse of `a` modulo `q` using the Extended Euclidean Algorithm.
+    /// Returns an error if the inverse does not exist.
+    pub fn mod_inv<T>(a: T, q: T) -> Result<T, &'static str>
+    where
+        T: Copy
+        + PartialEq
+        + PartialOrd
+        + Zero
+        + One
+        + Add<Output = T>
+        + Sub<Output = T>
+        + Mul<Output = T>
+        + Div<Output = T>
+        + Rem<Output = T>,
+    {
+        let zero = T::zero();
+        let one = T::one();
+
+        let mut t = zero;
+        let mut new_t = one;
+        let mut r = q;
+        let mut new_r = a;
+
+        while new_r != zero {
+            let quotient = r / new_r;
+            let temp_t = new_t;
+            new_t = t - quotient * new_t;
+            t = temp_t;
+
+            let temp_r = new_r;
+            new_r = r - quotient * new_r;
+            r = temp_r;
+        }
+
+        if r > one {
+            return Err("Inverse does not exist because a and q are not coprime");
+        }
+        if t < zero {
+            t = t + q;
+        }
+        Ok(t)
     }
 
 
