@@ -151,9 +151,48 @@ where
         self.normalize(res)
     }
 
-    fn double(&self, _p: &Point<T>) -> Point<T> {
-        unimplemented!()
+    fn double(&self, p: &Point<T>) -> Point<T> {
+        // Define the identity point.
+        let identity = Point {
+            x: T::zero(),
+            y: T::zero(),
+            z: T::zero(),
+        };
+
+        // If p is the identity, return it.
+        if *p == identity {
+            return p.clone();
+        }
+        // If y == 0, doubling yields the identity.
+        if p.y == T::zero() {
+            return identity;
+        }
+
+        // Calculate lambda = (3*x^2 + a) / (2*y) mod q.
+        let two = T::from(2u8);
+        let three = T::from(3u8);
+        let x_sq = p.x.clone() * p.x.clone();
+        let numerator = (three * x_sq + self.a.clone()) % self.q.clone();
+        let denominator = (two * p.y.clone()) % self.q.clone();
+        let inv_den = Utils::mod_inv(denominator, self.q.clone())
+            .expect("Inverse should exist for denominator in doubling");
+        let lambda = (numerator * inv_den) % self.q.clone();
+
+        // x3 = lambda^2 - 2*x
+        let lambda_sq = lambda.clone() * lambda.clone();
+        let x3 = (lambda_sq - two * p.x.clone()) % self.q.clone();
+        // y3 = lambda*(x - x3) - y
+        let y3 = (lambda * (p.x.clone() - x3.clone()) - p.y.clone()) % self.q.clone();
+
+        // Construct the result with z = 1 (after normalization).
+        let result = Point {
+            x: x3,
+            y: y3,
+            z: T::one(),
+        };
+        self.normalize(result)
     }
+
 
     fn mul(&self, n: T, p: &Point<T>) -> Point<T> {
         let zero_point = Point {
