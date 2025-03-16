@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use KissECC::ecc::{EllipticCurve, Point};
+    use KissECC::ecc::{EllipticCurve};
+    use KissECC::point::Point;
     use KissECC::montgomery_curve::MontgomeryCurve;
 
     #[test]

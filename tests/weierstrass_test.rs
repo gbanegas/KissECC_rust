@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use KissECC::ecc::{EllipticCurve, Point};
+    use KissECC::ecc::{EllipticCurve};
+    use KissECC::point::Point;
     use KissECC::weierstrass_ecc::WeierstrassECC;
 
     #[test]
@@ -31,7 +32,8 @@ mod tests {
     fn test_mul() {
         let ecc = WeierstrassECC::new(  2, 3, 17 );
         let identity = Point { x: 0, y: 0, z: 0 };
-        let p = Point { x: 5, y: 6, z: 0 };
+        let p = Point { x: 5, y: 6, z: 1 };
+        let p2 = Point { x: 15, y: 12, z: 1 };
 
         // Multiplying by 0 should yield the identity.
         let r0 = ecc.mul(0, &p);
@@ -40,5 +42,8 @@ mod tests {
         // Multiplying by 1 should yield the same point.
         let r1 = ecc.mul(1, &p);
         assert_eq!(r1, p);
+
+        let r2 = ecc.mul(2, &p);
+        assert_eq!(r2, p2);
     }
 }

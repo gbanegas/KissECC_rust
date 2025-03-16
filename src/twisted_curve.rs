@@ -1,7 +1,8 @@
 use num_traits::{Zero, One, FromPrimitive, ToPrimitive};
 use num_integer::Integer;
 use std::ops::{Add, Sub, Mul, Rem, Div, BitAnd, Shr};
-use crate::ecc::{EllipticCurve, Point};
+use crate::ecc::{EllipticCurve};
+use crate::point::Point;
 use crate::utils::Utils;
 
 /// Twisted Edwards curve defined by the equation:

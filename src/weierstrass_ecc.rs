@@ -3,7 +3,8 @@ use num_traits::{Zero, One, FromPrimitive, ToPrimitive};
 use std::ops::{Mul, Rem, Add, Sub, BitAnd, Shr, Div};
 use std::cmp::PartialEq;
 use num_integer::Integer;
-use crate::ecc::{EllipticCurve, Point};
+use crate::ecc::{EllipticCurve};
+use crate::point::Point;
 use crate::utils::Utils;
 
 pub struct WeierstrassECC<T> {
@@ -167,6 +168,9 @@ where
             // Double the point m2.
             m2 = self.add(&m2, &m2);
         }
+        r.x = ((r.x % self.q.clone()) + self.q.clone()) % self.q.clone();
+        r.y = ((r.y % self.q.clone()) + self.q.clone()) % self.q.clone();
+
         r
     }
 

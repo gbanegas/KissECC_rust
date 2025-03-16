@@ -1,4 +1,5 @@
-use KissECC::ecc::{EllipticCurve, Point};
+use KissECC::ecc::{EllipticCurve};
+use KissECC::point::Point;
 use KissECC::twisted_curve::TwistedCurve;
 
 

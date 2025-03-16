@@ -1,14 +1,9 @@
 use num_traits::{Zero, One, FromPrimitive, ToPrimitive};
 use std::ops::{Add, Sub, Mul, Rem};
 use num_integer::Integer;
+use crate::point::Point;
 
-/// A simple point structure on a curve.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Point<T> {
-    pub x: T,
-    pub y: T,
-    pub z: T,
-}
+
 
 /// A trait that defines the common operations for an elliptic curve.
 pub trait EllipticCurve<T>
