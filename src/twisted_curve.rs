@@ -3,7 +3,6 @@ use num_integer::Integer;
 use std::ops::{Add, Sub, Mul, Rem, Div, BitAnd, Shr};
 use crate::ecc::{EllipticCurve, Point};
 use crate::utils::Utils;
-use std::fmt;
 
 /// Twisted Edwards curve defined by the equation:
 ///     a*x² + y² = 1 + b*x²*y²   (mod q)
@@ -14,6 +13,8 @@ use std::fmt;
 /// - I: computed as 2^((q-1)/4) mod q (used in x recovery),
 /// - zero: the identity element, here (0, 1),
 /// - order: the group order.
+
+#[allow(non_snake_case)]
 pub struct TwistedCurve<T> {
     pub a: T,
     pub b: T,
