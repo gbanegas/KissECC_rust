@@ -44,6 +44,7 @@ mod tests {
         assert_eq!(r1, p);
 
         let r2 = ecc.mul(2, &p);
-        assert_eq!(r2, p2);
+
+        assert_eq!( r2.eq_affine(&p2, ecc.q), true);
     }
 }
