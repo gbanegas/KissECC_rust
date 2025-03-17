@@ -194,7 +194,7 @@ where
     }
 
 
-    fn mul(&self, n: T, p: &Point<T>) -> Point<T> {
+    fn mul(&self, n: i32, p: &Point<T>) -> Point<T> {
         let zero_point = Point {
             x: T::zero(),
             y: T::zero(),
@@ -203,8 +203,8 @@ where
         let mut n_c = n.clone();
         let mut r = zero_point.clone();
         let mut m2 = p.clone();
-        while n_c > T::zero() {
-            if (n_c & T::one()) == T::one() {
+        while n_c > 0 {
+            if (n_c & 1) == 1 {
                 r = self.add(&r, &m2);
             }
             n_c = n_c >> 1;

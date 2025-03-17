@@ -41,7 +41,7 @@ where
     fn double(&self, p: &Point<T>) -> Point<T>;
 
     /// Multiplies a point by a scalar k (i.e. repeated addition).
-    fn mul(&self, n: T, p: &Point<T>) -> Point<T> ;
+    fn mul(&self, n: i32, p: &Point<T>) -> Point<T> ;
 
     /// Returns the order of the curve (or the group order).
     fn order(&self, g: &Point<T>) -> Result<T, &'static str>;

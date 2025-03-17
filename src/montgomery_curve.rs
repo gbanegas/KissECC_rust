@@ -176,12 +176,11 @@ where
     }
 
     /// Scalar multiplication via the double-and-add algorithm.
-    fn mul(&self, mut n: T, p: &Point<T>) -> Point<T> {
+    fn mul(&self, mut n: i32, p: &Point<T>) -> Point<T> {
         let mut r = self.zero.clone();
         let mut m2 = p.clone();
-        let one = T::one();
-        while n > T::zero() {
-            if (n.clone() & one.clone()) == one {
+        while n > 0 {
+            if (n.clone() & 1) == 1 {
                 r = self.add(&r, &m2);
             }
             n = n >> 1;
